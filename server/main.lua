@@ -56,7 +56,7 @@ end
 function GetLicenses(target, cb)
 	local xPlayer = ESX.GetPlayerFromId(target)
 
-	MySQL.Async.fetchAll('SELECT type FROM user_licenses WHERE owner = @owner', {
+	MySQL.Async.fetchAll('SELECT type FROM user_licenses WHERE owner = @owner limit 10', {
 		['@owner'] = xPlayer.identifier
 	}, function(result)
 		local licenses, asyncTasks = {}, {}
@@ -124,11 +124,21 @@ end
 
 RegisterNetEvent('esx_license:addLicense')
 AddEventHandler('esx_license:addLicense', function(target, type, cb)
+	local xPlayer = ESX.GetPlayerFromId(source)
+	if xPlayer.job.name == "police" or xPlayer.getGroup() ~= 'user' then
+		return
+	end
+	
 	AddLicense(target, type, cb)
 end)
 
 RegisterNetEvent('esx_license:removeLicense')
 AddEventHandler('esx_license:removeLicense', function(target, type, cb)
+	local xPlayer = ESX.GetPlayerFromId(source)
+	if xPlayer.job.name == "police" or xPlayer.getGroup() ~= 'user' then
+		return
+	end
+	
 	RemoveLicense(target, type, cb)
 end)
 
