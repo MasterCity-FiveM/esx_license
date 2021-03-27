@@ -125,7 +125,7 @@ end
 RegisterNetEvent('esx_license:addLicense')
 AddEventHandler('esx_license:addLicense', function(target, type, cb)
 	local xPlayer = ESX.GetPlayerFromId(source)
-	if xPlayer.job.name == "police" or xPlayer.getGroup() ~= 'user' then
+	if xPlayer.job.name == "police" or xPlayer.getRank() > 0 then
 		return
 	end
 	
@@ -135,7 +135,7 @@ end)
 RegisterNetEvent('esx_license:removeLicense')
 AddEventHandler('esx_license:removeLicense', function(target, type, cb)
 	local xPlayer = ESX.GetPlayerFromId(source)
-	if xPlayer.job.name == "police" or xPlayer.getGroup() ~= 'user' then
+	if xPlayer.job.name == "police" or xPlayer.getRank() > 0 then
 		return
 	end
 	
