@@ -124,6 +124,7 @@ end
 
 RegisterNetEvent('esx_license:addLicense')
 AddEventHandler('esx_license:addLicense', function(target, type, cb)
+	ESX.RunCustomFunction("anti_ddos", source, 'esx_license:addLicense', {target = target, type = type})
 	local xPlayer = ESX.GetPlayerFromId(source)
 	if xPlayer.job.name == "police" or xPlayer.getRank() > 0 then
 		return
@@ -134,6 +135,7 @@ end)
 
 RegisterNetEvent('esx_license:removeLicense')
 AddEventHandler('esx_license:removeLicense', function(target, type, cb)
+	ESX.RunCustomFunction("anti_ddos", source, 'esx_license:removeLicense', {target = target, type = type})
 	local xPlayer = ESX.GetPlayerFromId(source)
 	if xPlayer.job.name == "police" or xPlayer.getRank() > 0 then
 		return
@@ -159,17 +161,21 @@ AddEventHandler('esx_license:getLicensesList', function(cb)
 end)
 
 ESX.RegisterServerCallback('esx_license:getLicense', function(source, cb, type)
+	ESX.RunCustomFunction("anti_ddos", source, 'esx_license:getLicense', {type = type})
 	GetLicense(type, cb)
 end)
 
 ESX.RegisterServerCallback('esx_license:getLicenses', function(source, cb, target)
+	ESX.RunCustomFunction("anti_ddos", source, 'esx_license:getLicenses', {target = target})
 	GetLicenses(target, cb)
 end)
 
 ESX.RegisterServerCallback('esx_license:checkLicense', function(source, cb, target, type)
+	ESX.RunCustomFunction("anti_ddos", source, 'esx_license:checkLicense', {target = target, type = type})
 	CheckLicense(target, type, cb)
 end)
 
 ESX.RegisterServerCallback('esx_license:getLicensesList', function(source, cb)
+	ESX.RunCustomFunction("anti_ddos", source, 'esx_license:getLicensesList', {})
 	GetLicensesList(cb)
 end)
