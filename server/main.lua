@@ -1,6 +1,19 @@
 ESX = nil
 
-TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
+local LiscensesList = {}
+
+TriggerEvent('esx:getSharedObject', function(obj)
+	ESX = obj
+	
+	Citizen.Wait(5000)
+	
+	MySQL.Async.fetchAll('SELECT * FROM licenses', {
+	}, function(result)
+		for i=1, #result, 1 do
+			LiscensesList[result[i].type] = result[i].label
+		end
+	end)
+end)
 
 function AddLicense(target, type, cb)
 	local xPlayer = ESX.GetPlayerFromId(target)
@@ -55,34 +68,19 @@ end
 
 function GetLicenses(target, cb)
 	local xPlayer = ESX.GetPlayerFromId(target)
-
 	MySQL.Async.fetchAll('SELECT type FROM user_licenses WHERE owner = @owner limit 10', {
 		['@owner'] = xPlayer.identifier
 	}, function(result)
-		local licenses, asyncTasks = {}, {}
-
+		local licenses = {}
+		
 		for i=1, #result, 1 do
-			local scope = function(type)
-				table.insert(asyncTasks, function(cb)
-					MySQL.Async.fetchAll('SELECT label FROM licenses WHERE type = @type', {
-						['@type'] = type
-					}, function(result2)
-						table.insert(licenses, {
-							type  = type,
-							label = result2[1].label
-						})
-
-						cb()
-					end)
-				end)
-			end
-
-			scope(result[i].type)
+			table.insert(licenses, {
+				type  = result[i].type,
+				label = LiscensesList[result[i].type]
+			})
 		end
-
-		Async.parallel(asyncTasks, function(results)
-			cb(licenses)
-		end)
+		
+		cb(licenses)
 	end)
 end
 
@@ -114,7 +112,7 @@ function GetLicensesList(cb)
 		for i=1, #result, 1 do
 			table.insert(licenses, {
 				type  = result[i].type,
-				label = result[i].label
+				label = LiscensesList[result[i].type]
 			})
 		end
 
@@ -126,7 +124,7 @@ RegisterNetEvent('esx_license:addLicense')
 AddEventHandler('esx_license:addLicense', function(target, type, cb)
 	ESX.RunCustomFunction("anti_ddos", source, 'esx_license:addLicense', {target = target, type = type})
 	local xPlayer = ESX.GetPlayerFromId(source)
-	if xPlayer.job.name == "police" or xPlayer.getRank() > 0 then
+	if xPlayer.job.name ~= "police" or xPlayer.getRank() == 0 then
 		return
 	end
 	
@@ -137,7 +135,7 @@ RegisterNetEvent('esx_license:removeLicense')
 AddEventHandler('esx_license:removeLicense', function(target, type, cb)
 	ESX.RunCustomFunction("anti_ddos", source, 'esx_license:removeLicense', {target = target, type = type})
 	local xPlayer = ESX.GetPlayerFromId(source)
-	if xPlayer.job.name == "police" or xPlayer.getRank() > 0 then
+	if (xPlayer.job.name ~= "police" and xPlayer.job.name ~= "fbi" and xPlayer.job.name ~= "dadsetani" and xPlayer.job.name ~= "sheriff") or xPlayer.getRank() == 0 then
 		return
 	end
 	
